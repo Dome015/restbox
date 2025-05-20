@@ -1,0 +1,82 @@
+{
+	"info": {
+		"_postman_id": "09b60d0b-73a6-4c45-a9bd-6d980467ba78",
+		"name": "Notelett",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26036186"
+	},
+	"item": [
+		{
+			"name": "Google Assistant",
+			"item": [
+				{
+					"name": "Check Grammar",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-test-header",
+								"value": "testValue",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"html\": \"cme stai?\", \"language\": \"it\" }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/api/assistant/google/check-grammar",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"api",
+								"assistant",
+								"google",
+								"check-grammar"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Check Grammar Stream",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"text\": \"\",\r\n    \"html\": \"Hi\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/assistant/check-grammar-stream",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"assistant",
+						"check-grammar-stream"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

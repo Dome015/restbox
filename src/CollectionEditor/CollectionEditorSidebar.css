@@ -1,0 +1,26 @@
+.sidebar-entry-container {
+  border-radius: 5px;
+  padding: 0.5em;
+  margin-top: 0.5em;
+  background-color: var(--transparent-color);
+  display: flex;
+  border: none;
+  width: 100%;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.sidebar-entry-container:hover {
+  background-color: var(--transparent-color-active);
+}
+
+.sidebar-entry-name {
+  display: inline-block;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
+  margin-left: 0.5em;
+  text-align: left;
+}

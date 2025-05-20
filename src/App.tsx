@@ -1,50 +1,70 @@
+import { open, save } from "@tauri-apps/plugin-dialog";
+import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
+import {
+  parsePostmanCollection,
+  PostmanCollection,
+  serializePostmanCollection,
+} from "./collection/PostmanCollection";
+import CollectionEditor from "./CollectionEditor/CollectionEditor";
+import Footer from "./Footer";
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  const [activeCollection, setActiveCollection] = useState<PostmanCollection | null>(null);
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
+  async function onOpenCollection() {
+    try {
+      const filePath = await open({
+        multiple: false,
+        filters: [{ name: "JSON", extensions: ["json"] }],
+      });
+      if (!filePath) {
+        return;
+      }
+      const fileContent = await readTextFile(filePath);
+      const collection = parsePostmanCollection(fileContent);
+      console.log(collection);
+      setActiveCollection(collection);
+    } catch (error) {
+      console.error("Failed to load collection", error);
+    }
+  }
+
+  async function onSaveCollection() {
+    if (!activeCollection) return;
+    try {
+      const json = serializePostmanCollection(activeCollection);
+      const savePath = await save({
+        defaultPath: `${activeCollection.name || "collection"}.json`,
+        filters: [{ name: "JSON", extensions: ["json"] }],
+      });
+      if (!savePath) {
+        return;
+      }
+      await writeTextFile(savePath, json);
+    } catch (e) {
+      console.error("Failed to save collection:", e);
+    }
   }
 
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
-
-      <div className="row">
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="main-container var-def">
+      <div className="content-container">
+        {activeCollection === null && (
+          <button
+            className="custom-button normal"
+            onClick={onOpenCollection}
+          >
+            Open Collection
+          </button>
+        )}
+        {activeCollection !== null && <CollectionEditor collection={activeCollection} />}
       </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
+      <div className="border-container">
+        <Footer />
+      </div>
+    </div>
   );
 }
 
