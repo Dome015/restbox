@@ -19,6 +19,9 @@ body, html {
 * {
   box-sizing: border-box;
 }
+.transp-logo a {
+  display: none;
+}
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
