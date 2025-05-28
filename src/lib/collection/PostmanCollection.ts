@@ -2,7 +2,7 @@ export type PostmanCollection = {
   name: string;
   description?: string;
   items: PostmanCollectionItem[];
-}
+};
 
 export type PostmanCollectionItem =
   | PostmanCollectionRequestItem
@@ -12,13 +12,13 @@ export type PostmanCollectionFolderItem = {
   name: string;
   description?: string;
   items: PostmanCollectionItem[];
-}
+};
 
 export type PostmanCollectionRequestItem = {
   name: string;
   description?: string;
   request: PostmanCollectionRequest;
-}
+};
 
 export type HttpMethod =
   | "GET"
@@ -29,12 +29,22 @@ export type HttpMethod =
   | "HEAD"
   | "OPTIONS";
 
+  export function methodAllowsRequestBody(method: HttpMethod): boolean {
+    if (["POST", "PUT", "PATCH"].includes(method)) {
+      return true;
+    }
+    return false;
+  }
+  
+
+export type PostmanHeader = { key: string; value: string };
+
 export type PostmanCollectionRequest = {
   method: HttpMethod;
   url: string;
   body?: string;
-  headers: { [key: string]: string };
-}
+  headers: PostmanHeader[];
+};
 
 /**
  * Type-guard: true if `item` is a PostmanCollectionRequestItem.
@@ -135,14 +145,14 @@ export function parsePostmanCollection(
           throw new Error(`Empty URL in request "${entry.name}"`);
         }
 
-        // Headers
-        const headers: { [key: string]: string } = {};
+        // Headers as array
+        const headers: PostmanHeader[] = [];
         if (Array.isArray(req.header)) {
           for (const h of req.header) {
             const key = (h as any).key ?? (h as any).name;
             const val = (h as any).value;
             if (typeof key === "string" && typeof val === "string") {
-              headers[key] = val;
+              headers.push({ key, value: val });
             }
           }
         }
@@ -217,9 +227,7 @@ export function serializePostmanCollection(
 
       // Request
       const req = (it as PostmanCollectionRequestItem).request;
-      const headerArr = Object.entries(req.headers).map(
-        ([key, value]) => ({ key, value })
-      );
+      const headerArr = req.headers.map(({ key, value }) => ({ key, value }));
       const bodyObj =
         req.body !== undefined
           ? {
@@ -248,5 +256,3 @@ export function serializePostmanCollection(
 
   return JSON.stringify(v21, null, 2);
 }
-
-

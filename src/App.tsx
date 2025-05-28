@@ -1,17 +1,20 @@
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import { useState } from "react";
-import "./App.css";
+import "./index.css";
 import {
   parsePostmanCollection,
   PostmanCollection,
   serializePostmanCollection,
-} from "./collection/PostmanCollection";
-import CollectionEditor from "./CollectionEditor/CollectionEditor";
-import Footer from "./Footer";
+} from "./lib/collection/PostmanCollection";
+import { Button } from "./components/ui/button";
+import { ThemeProvider } from "./components/theme-prodiver";
+import CollectionView from "./components/view/collection/collection-view";
+import Header from "./components/layout/header";
 
 function App() {
   const [activeCollection, setActiveCollection] = useState<PostmanCollection | null>(null);
+  const [view, setView] = useState<"collection" | "request">("collection");
 
   async function onOpenCollection() {
     try {
@@ -48,24 +51,14 @@ function App() {
     }
   }
 
-  return (
-    <div className="main-container var-def">
-      <div className="content-container">
-        {activeCollection === null && (
-          <button
-            className="custom-button normal"
-            onClick={onOpenCollection}
-          >
-            Open Collection
-          </button>
-        )}
-        {activeCollection !== null && <CollectionEditor collection={activeCollection} />}
-      </div>
-      <div className="border-container">
-        <Footer />
-      </div>
-    </div>
-  );
+  return <ThemeProvider>
+    <Header activeCollection={activeCollection} />
+    {activeCollection !== null && <CollectionView activeCollection={activeCollection} />}
+    {activeCollection === null && <div className="flex flex-col items-center justify-center min-h-svh">
+      <Button onClick={onOpenCollection}>Click me</Button>
+      {activeCollection !== null && <>{JSON.stringify(activeCollection)}</>}
+    </div>}
+  </ThemeProvider>
 }
 
 export default App;
