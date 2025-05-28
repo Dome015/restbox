@@ -5,6 +5,9 @@ import { SelectGroup } from "@radix-ui/react-select";
 import Editor from '@monaco-editor/react';
 import { useState } from "react";
 import { Toggle } from "@/components/ui/toggle";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Trash } from "lucide-react";
 
 type RequestEditorProps = {
   requestItem: PostmanCollectionRequestItem;
@@ -42,15 +45,39 @@ export default function RequestEditor({ requestItem }: RequestEditorProps) {
         </div>
       </div>
       <div className="flex gap-x-2">
-        <Toggle size="sm" pressed={view === "headers"}>
+        <Toggle size="sm" pressed={view === "headers"} onClick={() => setView("headers")}>
           Headers
         </Toggle>
-        {methodAllowsRequestBody(requestItem.request.method) && <Toggle size="sm" pressed={view === "body"}>
+        {methodAllowsRequestBody(requestItem.request.method) && <Toggle size="sm" pressed={view === "body"} onClick={() => setView("body")}>
           Body
         </Toggle>}
       </div>
-      {methodAllowsRequestBody(requestItem.request.method) &&
-      <Editor value={requestItem.request.body || ""} theme="vs-dark" className="flex-grow-1" language="json" />}
+      {view === "headers" &&
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[30%]">Header</TableHead>
+              <TableHead>Value</TableHead>
+              <TableHead></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {requestItem.request.headers.map(header => <TableRow key={header.key}>
+              <TableCell><Input type="text" value={header.key} className="w-full" /></TableCell>
+              <TableCell><Input type="text" value={header.value} className="w-full" /></TableCell>
+              <TableCell><Button variant="ghost" size="icon"><Trash /></Button></TableCell>
+            </TableRow>)}
+          </TableBody>
+          <TableCaption>
+            <Button>Add header</Button>
+          </TableCaption>
+        </Table>
+      }
+      {methodAllowsRequestBody(requestItem.request.method) && view === "body" &&
+        <div className="flex-grow-1">
+          <Editor value={requestItem.request.body || ""} theme="vs-dark" height="100%" language="json" />
+        </div>
+      }
     </div>
   )
 }
